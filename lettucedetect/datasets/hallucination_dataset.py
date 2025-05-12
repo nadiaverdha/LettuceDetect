@@ -259,13 +259,17 @@ class HallucinationDataset(Dataset):
                 sentence_boundaries = sentence_boundaries[: last_valid_idx + 1]
                 sentence_offset_mappings = sentence_offset_mappings[: last_valid_idx + 1]
 
-        
         # Convert to tensors
         input_ids = torch.tensor(input_ids, dtype=torch.long)
         attention_mask = torch.tensor(attention_mask, dtype=torch.long)
-    
-        return input_ids, attention_mask,offset_mapping,sentence_boundaries,sentence_offset_mappings
-        
+
+        return (
+            input_ids,
+            attention_mask,
+            offset_mapping,
+            sentence_boundaries,
+            sentence_offset_mappings,
+        )
 
     def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         """Get an item from the dataset.
@@ -328,7 +332,13 @@ class HallucinationDataset(Dataset):
             if sentences is None:
                 sentences = nltk.sent_tokenize(sample.answer)
 
-            input_ids, attention_mask,offset_mapping,sentence_boundaries,sentence_offset_mappings = HallucinationDataset.encode_context_and_sentences_with_offset(
+            (
+                input_ids,
+                attention_mask,
+                offset_mapping,
+                sentence_boundaries,
+                sentence_offset_mappings,
+            ) = HallucinationDataset.encode_context_and_sentences_with_offset(
                 self.tokenizer, sample.prompt, sentences, max_length=4096
             )
 
@@ -340,12 +350,11 @@ class HallucinationDataset(Dataset):
             )
             sentence_labels = torch.tensor(sentence_labels, dtype=torch.long)
 
-
             return {
-            "input_ids": input_ids,
-            "attention_mask": attention_mask,
-            "offset_mapping": offset_mapping,
-            "sentence_boundaries": sentence_boundaries,
-            "sentence_offset_mappings": sentence_offset_mappings,
-            "labels": sentence_labels,
-        }
+                "input_ids": input_ids,
+                "attention_mask": attention_mask,
+                "offset_mapping": offset_mapping,
+                "sentence_boundaries": sentence_boundaries,
+                "sentence_offset_mappings": sentence_offset_mappings,
+                "labels": sentence_labels,
+            }
