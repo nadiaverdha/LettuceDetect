@@ -161,7 +161,6 @@ class HallucinationDataset(Dataset):
         tokenizer: AutoTokenizer,
         context: str,
         sentences: list,
-        sample: HallucinationSample,
         max_length: int = 4096,
     ) -> dict:
         max_length = max_length - 2
@@ -260,25 +259,13 @@ class HallucinationDataset(Dataset):
                 sentence_boundaries = sentence_boundaries[: last_valid_idx + 1]
                 sentence_offset_mappings = sentence_offset_mappings[: last_valid_idx + 1]
 
-        # Add labels for included sentences
-        hallucinated_sentences = find_hallucinated_sent(sample=sample)
-        sentence_labels = define_sentence_label(
-            sentences=sentences[: len(sentence_boundaries)],
-            hallucinated_sentences=hallucinated_sentences,
-        )
-
+        
         # Convert to tensors
         input_ids = torch.tensor(input_ids, dtype=torch.long)
         attention_mask = torch.tensor(attention_mask, dtype=torch.long)
-        sentence_labels = torch.tensor(sentence_labels, dtype=torch.long)
-        return {
-            "input_ids": input_ids,
-            "attention_mask": attention_mask,
-            "offset_mapping": offset_mapping,
-            "sentence_boundaries": sentence_boundaries,
-            "sentence_offset_mappings": sentence_offset_mappings,
-            "labels": sentence_labels,
-        }
+    
+        return input_ids, attention_mask,offset_mapping,sentence_boundaries,sentence_offset_mappings
+        
 
     def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         """Get an item from the dataset.
@@ -341,8 +328,24 @@ class HallucinationDataset(Dataset):
             if sentences is None:
                 sentences = nltk.sent_tokenize(sample.answer)
 
-            encoding = HallucinationDataset.encode_context_and_sentences_with_offset(
-                self.tokenizer, sample.prompt, sentences, sample, max_length=4096
+            input_ids, attention_mask,offset_mapping,sentence_boundaries,sentence_offset_mappings = HallucinationDataset.encode_context_and_sentences_with_offset(
+                self.tokenizer, sample.prompt, sentences, max_length=4096
             )
 
-            return encoding
+            # Add labels for included sentences
+            hallucinated_sentences = find_hallucinated_sent(sample=sample)
+            sentence_labels = define_sentence_label(
+                sentences=sentences[: len(sentence_boundaries)],
+                hallucinated_sentences=hallucinated_sentences,
+            )
+            sentence_labels = torch.tensor(sentence_labels, dtype=torch.long)
+
+
+            return {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "offset_mapping": offset_mapping,
+            "sentence_boundaries": sentence_boundaries,
+            "sentence_offset_mappings": sentence_offset_mappings,
+            "labels": sentence_labels,
+        }
