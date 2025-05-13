@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Literal
 
+import nltk
 import torch
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
-import nltk
 
 nltk.download("punkt_tab")
 

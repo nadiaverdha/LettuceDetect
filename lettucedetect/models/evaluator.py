@@ -1,20 +1,20 @@
 import logging
+
 import torch
+import torch.nn as nn
 from sklearn.metrics import (
+    accuracy_score,
     auc,
     classification_report,
     precision_recall_fscore_support,
     roc_curve,
-    accuracy_score,
 )
 from torch.nn import Module
-import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
 from lettucedetect.datasets.hallucination_dataset import HallucinationSample
 from lettucedetect.models.inference import HallucinationDetector
-
 
 # Set up logger
 logger = logging.getLogger(__name__)

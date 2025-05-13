@@ -3,7 +3,7 @@ from typing import Any
 
 import torch
 import torch.nn as nn
-from transformers import AutoModel, PreTrainedModel, AutoConfig
+from transformers import AutoConfig, AutoModel, PreTrainedModel
 
 logger = logging.getLogger(__name__)
 

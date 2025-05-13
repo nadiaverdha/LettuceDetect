@@ -17,8 +17,8 @@ from lettucedetect.datasets.hallucination_dataset import (
     HallucinationDataset,
     HallucinationSample,
 )
-from lettucedetect.models.trainer import Trainer, SentenceTrainer, qa_collate_fn
 from lettucedetect.models.sentence_model import SentenceModel
+from lettucedetect.models.trainer import SentenceTrainer, Trainer, qa_collate_fn
 
 
 def set_seed(seed: int = 42):

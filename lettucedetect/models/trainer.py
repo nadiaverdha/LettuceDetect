@@ -1,21 +1,21 @@
-import logging
-from pathlib import Path
-from datetime import timedelta
 import json
+import logging
+import os
+import time
+from datetime import timedelta
+from pathlib import Path
 
 import torch
 import torch.nn as nn
-from torch.nn import Module
 import torch.optim as optim
+from torch.nn import Module
+from torch.nn.utils.rnn import pad_sequence
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
-from torch.nn.utils.rnn import pad_sequence
 from tqdm.auto import tqdm
-import time
 from transformers import PreTrainedTokenizer
 
-from lettucedetect.models.evaluator import evaluate_model, print_metrics, evaluate_sentence_model
-
+from lettucedetect.models.evaluator import evaluate_model, evaluate_sentence_model, print_metrics
 
 # Set up logger
 logger = logging.getLogger(__name__)
@@ -372,6 +372,7 @@ class SentenceTrainer:
 
         :return: Best F1 score achieved during training
         """
+
         start_time = time.time()
         print(f"\nStarting training on {self.device}")
         print(f"Training samples: {len(self.train_loader.dataset)}")
@@ -401,6 +402,15 @@ class SentenceTrainer:
                 # Save metrics to a JSON file
                 if self.save_path:
                     metrics_path = self.save_path / "metrics.json"
+
+                    if os.path.exists(metrics_path) and os.path.getsize(metrics_path) > 0:
+                        with open(metrics_path, "r") as f:
+                            try:
+                                metrics_list = json.load(f)
+                                if not isinstance(metrics_list, list):
+                                    metrics_list = [metrics_list]
+                            except json.JSONDecodeError:
+                                metrics_list = []
                     metrics_data = {
                         "loss": float(metrics["loss"]),
                         "hallucinated": {
@@ -417,8 +427,10 @@ class SentenceTrainer:
                         "epoch": self.current_epoch,
                         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                     }
+                    metrics_list.append(metrics_data)
+
                     with open(metrics_path, "w") as f:
-                        json.dump(metrics_data, f, indent=2)
+                        json.dump(metrics_list, f, indent=2)
 
                 # Save best model based on F1 score
                 if self.save_path and metrics["hallucinated"]["f1"] > self.best_f1:
