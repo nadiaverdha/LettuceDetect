@@ -234,7 +234,7 @@ class TransformerDetector(BaseDetector):
 
 
 # == Sentence Transformer ==
-class SentenceDetector(BaseDetector):
+class SentenceTransformer(BaseDetector):
     def __init__(
         self,
         model_path: str,
@@ -244,7 +244,7 @@ class SentenceDetector(BaseDetector):
         threshold: float = 0.5,
         **kwargs,
     ):
-        """Initialize the SentenceDetector.
+        """Initialize the SentenceTransformer.
         :param model_path: The path to the model.
         :param max_length: The maximum length of the input sequence.
         :param device: The device to run the model on.
@@ -622,15 +622,15 @@ class HallucinationDetector:
         :param kwargs: Additional keyword arguments passed to the underlying detector.
         """
 
-        if method == "tokentransformer":
+        if method == "transformer":
             self.detector = TransformerDetector(**kwargs)
         elif method == "sentencetransformer":
-            self.detector = SentenceDetector(**kwargs)
+            self.detector = SentenceTransformer(**kwargs)
         elif method == "llm":
             self.detector = LLMDetector(**kwargs)
         else:
             raise ValueError(
-                "Unsupported method. Choose 'tokentransformer', 'sentencetransformer' or 'llm'."
+                "Unsupported method. Choose 'transformer', 'sentencetransformer' or 'llm'."
             )
 
     def predict(
