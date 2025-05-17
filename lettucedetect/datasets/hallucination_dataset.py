@@ -86,7 +86,7 @@ class HallucinationDataset(Dataset):
         self,
         samples: list[HallucinationSample],
         tokenizer: AutoTokenizer,
-        level: Literal["token", "sentence"] = "token",
+        method: Literal["transformer", "sentencetransformer"] = "transformer",
         max_length: int = 4096,
     ):
         """Initialize the dataset.x
@@ -97,7 +97,7 @@ class HallucinationDataset(Dataset):
         """
         self.samples = samples
         self.tokenizer = tokenizer
-        self.level = level
+        self.method = method
         self.max_length = max_length
 
     def __len__(self) -> int:
@@ -283,7 +283,7 @@ class HallucinationDataset(Dataset):
         # 1) Token-level Model
         # -------------------------------------------------------------------------
 
-        if self.level == "token":
+        if self.method == "transformer":
             # Use the shared class method to perform tokenization and initial label setup.
             encoding, labels, offsets, answer_start = HallucinationDataset.prepare_tokenized_input(
                 self.tokenizer, sample.prompt, sample.answer, self.max_length
