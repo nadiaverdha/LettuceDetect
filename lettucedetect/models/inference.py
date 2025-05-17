@@ -311,15 +311,20 @@ class SentenceTransformer(BaseDetector):
         with torch.no_grad():
             outputs = self.model(input_ids, attention_mask, [sentence_boundaries])
 
-        sentence_preds = torch.nn.functional.softmax(outputs[0], dim=1)
-
         # Extract hallucinated sentences
         hallucinated_sentences = []
         if len(outputs) > 0 and len(outputs[0]) > 0:
             sentence_preds = torch.nn.functional.softmax(outputs[0], dim=1)
             for i, pred in enumerate(sentence_preds):
                 if i < len(sentences) and pred[1] > self.threshold:
-                    hallucinated_sentences.append(sentences[i])
+                    hallucinated_sentences.append(
+                        {
+                            "start": sentence_boundaries[i][0],
+                            "end": sentence_boundaries[i][0],
+                            "confidence": pred[1],
+                            "text": sentences[i],
+                        }
+                    )
 
         return hallucinated_sentences
 
