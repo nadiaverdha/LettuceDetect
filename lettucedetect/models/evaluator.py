@@ -245,7 +245,7 @@ def evaluate_detector_char_level(
       - "gold_spans": a list of dictionaries where each dictionary has "start" and "end" keys
                       indicating the character indices of the gold (human-labeled) span.
 
-    It uses the detector (xwhich should have been initialized with the appropriate model)
+    It uses the detector (which should have been initialized with the appropriate model)
     to obtain predicted spans, compares those spans with the gold spans, and computes global
     precision, recall, and F1 based on character overlap.
 
