@@ -402,7 +402,7 @@ class SentenceTrainer:
                 # Save metrics to a JSON file
                 if self.save_path:
                     metrics_path = self.save_path / "metrics.json"
-
+                    metrics_list = []
                     if os.path.exists(metrics_path) and os.path.getsize(metrics_path) > 0:
                         with open(metrics_path, "r") as f:
                             try:
@@ -423,6 +423,7 @@ class SentenceTrainer:
                             "recall": float(metrics["supported"]["recall"]),
                             "f1": float(metrics["supported"]["f1"]),
                         },
+                        "auroc": float(metrics["accuracy"]),
                         "accuracy": float(metrics["accuracy"]),
                         "epoch": self.current_epoch,
                         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
